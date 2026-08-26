@@ -75,9 +75,52 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     }
 
-    .track-info { margin-bottom: 12px; }
-    .track-title { font-size: 1.4rem; font-weight: 700; color: #fff; }
-    .artist-name { color: #b3b3b3; font-size: 0.95rem; margin-top: 4px; }
+    /* Animated Soundwave / Equalizer */
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 18px;
+      margin-top: 8px;
+    }
+
+    .eq-bar {
+      width: 3px;
+      height: 4px;
+      background: var(--spotify-green);
+      border-radius: 2px;
+      transition: height 0.2s ease;
+    }
+
+    .equalizer.playing .eq-bar:nth-child(1) { animation: bounce 0.6s infinite alternate ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(2) { animation: bounce 0.8s infinite alternate 0.2s ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(3) { animation: bounce 0.5s infinite alternate 0.4s ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(4) { animation: bounce 0.7s infinite alternate 0.1s ease-in-out; }
+
+    @keyframes bounce {
+      0% { height: 4px; }
+      100% { height: 18px; }
+    }
+
+    .track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .track-title { font-size: 1.35rem; font-weight: 700; color: #fff; }
+    .artist-name { color: #b3b3b3; font-size: 0.9rem; margin-top: 3px; }
+
+    .track-vibe-note {
+      background: rgba(255,255,255,0.04);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      border-left: 3px solid var(--accent-pink);
+      margin-bottom: 14px;
+    }
 
     /* Progress Bar */
     .progress-area {
@@ -89,7 +132,7 @@
 
     .progress-bar-bg {
       background: rgba(255,255,255,0.15);
-      height: 5px;
+      height: 6px;
       border-radius: 3px;
       cursor: pointer;
       position: relative;
@@ -124,15 +167,16 @@
       cursor: pointer;
       background: none;
       border: none;
-      transition: transform 0.1s;
+      padding: 10px;
+      transition: transform 0.1s, color 0.2s;
     }
-    .control-icon:active { transform: scale(0.9); }
+    .control-icon:active { transform: scale(0.85); color: #fff; }
 
     .play-btn {
       background: var(--spotify-green);
       border: none;
-      width: 54px;
-      height: 54px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -145,19 +189,20 @@
     }
     .play-btn:active { transform: scale(0.92); }
 
-    /* Interactive Compliment Tracklist */
+    /* Tracklist Section */
     .playlist {
       border-top: 1px solid rgba(255,255,255,0.08);
       padding-top: 16px;
     }
     .playlist-title {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #888;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-weight: 700;
     }
+
     .track-item {
       display: flex;
       justify-content: space-between;
@@ -168,21 +213,38 @@
       margin-bottom: 8px;
       font-size: 0.9rem;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, border-left 0.2s;
+      border-left: 3px solid transparent;
     }
+
     .track-item:active { background: rgba(255,255,255,0.12); }
 
-    /* Custom Toast Message for Tracks */
-    .toast-banner {
-      display: none;
-      background: #252525;
-      border-left: 4px solid var(--spotify-green);
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      color: #fff;
-      margin-top: 12px;
-      animation: fadeIn 0.3s ease;
+    .track-item.playing {
+      background: rgba(29, 185, 84, 0.15);
+      border-left: 3px solid var(--spotify-green);
+    }
+
+    .track-item.playing .track-name,
+    .track-item.playing .track-status {
+      color: var(--spotify-green);
+      font-weight: 700;
+    }
+
+    .track-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .track-num {
+      color: #777;
+      font-size: 0.85rem;
+      width: 14px;
+    }
+
+    .track-status {
+      font-size: 0.85rem;
+      color: #777;
     }
 
     /* Unseal Button */
@@ -243,18 +305,16 @@
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.15);
       color: #fff;
-      padding: 12px 24px;
+      padding: 14px 24px;
       border-radius: 9999px;
       cursor: pointer;
       font-weight: 600;
       width: 100%;
       margin-top: 24px;
+      border: none;
+      transition: background 0.2s;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .back-btn:active { background: rgba(255,255,255,0.18); }
   </style>
 </head>
 <body>
@@ -266,56 +326,84 @@
       
       <div class="spotify-card">
         <div class="album-art-wrap">
-          <img src="photo.jpg" alt="Birthday Girl" class="album-art" onerror="this.src='https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80'">
+          <img id="albumArt" src="photo.jpg" alt="Birthday Cover" class="album-art" onerror="this.src='https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80'">
         </div>
 
-        <div class="track-info">
-          <div class="track-title">Main Character Energy ✨</div>
-          <div class="artist-name">The Birthday Girl • Official VIP Track</div>
+        <div class="track-header">
+          <div>
+            <div class="track-title" id="trackTitle">Amsham ✨</div>
+            <div class="artist-name" id="artistName">Track 01 • Birthday Edition</div>
+          </div>
+          <!-- Animated Equalizer -->
+          <div class="equalizer" id="equalizer">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+          </div>
         </div>
 
-        <!-- Working Audio Engine -->
-        <audio id="audioTrack" src="https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg" preload="auto"></audio>
+        <!-- Custom Track Note/Vibe (Changes per track) -->
+        <div class="track-vibe-note" id="trackVibe">
+          ✨ "Setting the calm, beautiful birthday tone."
+        </div>
 
-        <!-- Progress Bar -->
+        <!-- Audio Player Element -->
+        <audio id="audioTrack" preload="auto"></audio>
+
+        <!-- Seekable Progress Bar -->
         <div class="progress-area" onclick="seekAudio(event)">
           <div class="progress-bar-bg">
             <div class="progress-fill" id="progressFill"></div>
           </div>
           <div class="time-indicators">
             <span id="currentTime">0:00</span>
-            <span id="totalDuration">0:30</span>
+            <span id="totalDuration">0:00</span>
           </div>
         </div>
 
         <!-- Controls -->
         <div class="player-controls">
-          <button class="control-icon" onclick="replayAudio()">⏮</button>
-          <button class="play-btn" id="playPauseBtn" onclick="toggleAudio()">▶</button>
-          <button class="control-icon" onclick="triggerConfetti()">🎉</button>
+          <button class="control-icon" onclick="playPrevTrack()" title="Previous Track">⏮</button>
+          <button class="play-btn" id="playPauseBtn" onclick="toggleAudio()" title="Play/Pause">▶</button>
+          <button class="control-icon" onclick="playNextTrack()" title="Next Track">⏭</button>
+          <button class="control-icon" onclick="triggerConfetti()" title="Confetti">🎉</button>
         </div>
 
-        <!-- Interactive Compliment Tracks -->
+        <!-- Multi-Track Playlist -->
         <div class="playlist">
-          <div class="playlist-title">Bonus Tracks / Perks</div>
-          <div class="track-item" onclick="showTrackToast('✨ Track 1: Aura level officially exceeds 100/10 today!')">
-            <span>1. Aura Check</span> <span>0:45</span>
-          </div>
-          <div class="track-item" onclick="showTrackToast('🎧 Track 2: Certified elite vibe master with 0 bad days.')">
-            <span>2. Vibe Check</span> <span>1:20</span>
-          </div>
-          <div class="track-item" onclick="showTrackToast('👑 Track 3: Flawless style, unmatched energy, zero notes.')">
-            <span>3. Fit Check</span> <span>2:15</span>
+          <div class="playlist-title">Birthday Playlist</div>
+          
+          <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0)">
+            <div class="track-left">
+              <span class="track-num">1</span>
+              <span class="track-name">Amsham</span>
+            </div>
+            <span class="track-status">▶</span>
           </div>
 
-          <div id="trackToast" class="toast-banner"></div>
+          <div class="track-item" id="track-1" onclick="loadAndPlayTrack(1)">
+            <div class="track-left">
+              <span class="track-num">2</span>
+              <span class="track-name">Arikil</span>
+            </div>
+            <span class="track-status">▶</span>
+          </div>
+
+          <div class="track-item" id="track-2" onclick="loadAndPlayTrack(2)">
+            <div class="track-left">
+              <span class="track-num">3</span>
+              <span class="track-name">Blue</span>
+            </div>
+            <span class="track-status">▶</span>
+          </div>
         </div>
       </div>
 
       <!-- Action Card -->
       <div class="action-card">
         <h3 style="margin-bottom: 6px;">💌 A Special Delivery</h3>
-        <p style="color: #888; font-size: 0.85rem; margin-bottom: 16px;">Your VIP letter has been unsealed and prepared.</p>
+        <p style="color: #888; font-size: 0.85rem; margin-bottom: 16px;">Your birthday letter has been prepared.</p>
         <button class="open-btn" onclick="navigateToPage(2)">Open Birthday Card ✉️</button>
       </div>
 
@@ -328,8 +416,8 @@
         <h1 class="letter-title">Happy Birthday! 🎉</h1>
         
         <div class="letter-body">
-          Wishing you the most incredible year ahead! May this year bring you endless good music, spontaneous adventures, zero stress, and massive wins.<br><br>
-          Thank you for always bringing the highest energy and best vibes wherever you go. Keep shining, stay iconic, and never stop being the absolute main character that you are! ✨
+          Wishing you the most incredible year ahead! May this year bring you endless good music, spontaneous adventures, zero stress, and all the success you've been working toward.<br><br>
+          Thank you for always bringing the best energy, top-tier laughs, and unmatched vibes. Keep shining, stay iconic, and never stop being the absolute main character! ✨
         </div>
 
         <button class="back-btn" onclick="navigateToPage(1)">← Back to Player</button>
@@ -339,30 +427,120 @@
   </div>
 
   <script>
+    // --- PLAYLIST CONFIGURATION ---
+    const tracklist = [
+      {
+        title: "Amsham ✨",
+        artist: "Track 01 • Birthday Edition",
+        src: "Amsham.mp3",
+        vibe: "✨ \"Setting the calm, beautiful birthday tone.\""
+      },
+      {
+        title: "Arikil 🔥",
+        artist: "Track 02 • Birthday Edition",
+        src: "Arikil.mp3",
+        vibe: "🔥 \"Top-tier vibes and memories only.\""
+      },
+      {
+        title: "Blue 👑",
+        artist: "Track 03 • Birthday Edition",
+        src: "Blue.mp3",
+        vibe: "👑 \"The ultimate main character soundtrack.\""
+      }
+    ];
+
+    let currentTrackIndex = 0;
     const audio = document.getElementById('audioTrack');
     const playBtn = document.getElementById('playPauseBtn');
     const progressFill = document.getElementById('progressFill');
     const currentTimeEl = document.getElementById('currentTime');
     const totalDurationEl = document.getElementById('totalDuration');
+    const trackTitleEl = document.getElementById('trackTitle');
+    const artistNameEl = document.getElementById('artistName');
+    const trackVibeEl = document.getElementById('trackVibe');
+    const equalizer = document.getElementById('equalizer');
 
-    // Toggle Audio Play/Pause
+    // Initialize player state
+    function initPlayer() {
+      const initial = tracklist[0];
+      audio.src = initial.src;
+      trackTitleEl.textContent = initial.title;
+      artistNameEl.textContent = initial.artist;
+      trackVibeEl.textContent = initial.vibe;
+    }
+    initPlayer();
+
+    // Load & Play Track
+    function loadAndPlayTrack(index) {
+      currentTrackIndex = index;
+      const track = tracklist[index];
+
+      trackTitleEl.textContent = track.title;
+      artistNameEl.textContent = track.artist;
+      trackVibeEl.textContent = track.vibe;
+
+      // Update active highlight across track list
+      document.querySelectorAll('.track-item').forEach((item, idx) => {
+        const statusIcon = item.querySelector('.track-status');
+        if (idx === index) {
+          item.classList.add('playing');
+          statusIcon.textContent = '🔊';
+        } else {
+          item.classList.remove('playing');
+          statusIcon.textContent = '▶';
+        }
+      });
+
+      audio.src = track.src;
+      audio.load();
+      audio.play().then(() => {
+        playBtn.textContent = '⏸';
+        equalizer.classList.add('playing');
+      }).catch(() => {
+        playBtn.textContent = '▶';
+        equalizer.classList.remove('playing');
+      });
+
+      triggerConfetti();
+    }
+
+    // Toggle Play / Pause
     function toggleAudio() {
       if (audio.paused) {
-        audio.play();
-        playBtn.textContent = '⏸';
+        audio.play().then(() => {
+          playBtn.textContent = '⏸';
+          equalizer.classList.add('playing');
+          updateCurrentTrackStatusIcon('🔊');
+        });
       } else {
         audio.pause();
         playBtn.textContent = '▶';
+        equalizer.classList.remove('playing');
+        updateCurrentTrackStatusIcon('▶');
       }
     }
 
-    function replayAudio() {
-      audio.currentTime = 0;
-      audio.play();
-      playBtn.textContent = '⏸';
+    function updateCurrentTrackStatusIcon(symbol) {
+      const activeTrack = document.getElementById(`track-${currentTrackIndex}`);
+      if (activeTrack) {
+        activeTrack.querySelector('.track-status').textContent = symbol;
+      }
     }
 
-    // Audio Progress Tracking
+    function playNextTrack() {
+      const nextIndex = (currentTrackIndex + 1) % tracklist.length;
+      loadAndPlayTrack(nextIndex);
+    }
+
+    function playPrevTrack() {
+      const prevIndex = (currentTrackIndex - 1 + tracklist.length) % tracklist.length;
+      loadAndPlayTrack(prevIndex);
+    }
+
+    // Auto-advance when song ends
+    audio.addEventListener('ended', playNextTrack);
+
+    // Sync progress & duration
     audio.addEventListener('timeupdate', () => {
       const { currentTime, duration } = audio;
       if (duration) {
@@ -371,6 +549,10 @@
         currentTimeEl.textContent = formatTime(currentTime);
         totalDurationEl.textContent = formatTime(duration);
       }
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      totalDurationEl.textContent = formatTime(audio.duration);
     });
 
     function seekAudio(e) {
@@ -384,12 +566,13 @@
     }
 
     function formatTime(seconds) {
+      if (isNaN(seconds)) return '0:00';
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
-    // Page Navigation Flow
+    // --- PAGE NAVIGATION ---
     function navigateToPage(pageNumber) {
       document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
       const target = document.getElementById(`page${pageNumber}`);
@@ -400,21 +583,14 @@
       }
     }
 
-    // Interactive Toast Banner
-    function showTrackToast(message) {
-      const toast = document.getElementById('trackToast');
-      toast.textContent = message;
-      toast.style.display = 'block';
-    }
-
-    // Confetti Effects
+    // --- CONFETTI ---
     function triggerConfetti() {
-      confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 } });
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.65 } });
     }
 
     function bigCelebrationConfetti() {
       confetti({
-        particleCount: 120,
+        particleCount: 130,
         spread: 100,
         origin: { y: 0.5 },
         colors: ['#1db954', '#ff4b72', '#ffffff', '#ffd700']
