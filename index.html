@@ -30,7 +30,7 @@
     .page-view.active { display: flex; flex-direction: column; gap: 12px; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* SPOTIFY CARD */
+    /* SPOTIFY PLAYER */
     .spotify-card {
       background: linear-gradient(180deg, rgba(35, 30, 50, 0.85) 0%, var(--card-bg) 100%);
       border-radius: 22px;
@@ -139,11 +139,26 @@
     }
     .candle-flame { font-size: 2rem; filter: drop-shadow(0 0 10px #fbbf24); }
     .candle-instruction { font-size: 0.82rem; color: #fef08a; font-weight: 700; margin-top: 4px; }
+    
+    /* VIP SHAWARMA VOUCHER */
     #fortuneCard {
-      display: none; margin-top: 12px; background: rgba(29, 185, 84, 0.2);
-      border: 1px solid var(--spotify-green); padding: 12px; border-radius: 14px;
-      font-size: 0.85rem; color: #86efac; line-height: 1.5;
+      display: none;
+      margin-top: 14px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1.5px dashed var(--gold);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
     }
+    .voucher-tag { font-size: 0.72rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+    .voucher-title { font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+    .voucher-desc {
+      font-size: 0.85rem; line-height: 1.6; color: #e2e8f0; text-align: left;
+      background: rgba(0, 0, 0, 0.25); padding: 8px 12px; border-radius: 10px;
+    }
+    .voucher-fineprint { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; font-style: italic; }
+
     .back-btn {
       background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 10px;
       border-radius: 9999px; cursor: pointer; font-size: 0.85rem; width: 100%; margin-top: 12px; border: none;
@@ -221,10 +236,19 @@
           <div class="candle-flame" id="flameEmoji">🕯️🔥</div>
           <div class="candle-instruction" id="candleText">Tap candle to blow flame & unscramble photo!</div>
         </div>
+        
+        <!-- Shawarma Voucher -->
         <div id="fortuneCard">
-          🌟 <strong>BIRTHDAY FORTUNE UNLOCKED:</strong><br>
-          <em>"The universe confirms: 100% of your wishes made today are granted priority status. Prepare for high happiness, epic trips, and zero regrets this year!"</em>
+          <div class="voucher-tag">🎟️ OFFICIAL VIP VOUCHER</div>
+          <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
+          <div class="voucher-desc">
+            <strong>Valid at:</strong> Literally any spot of your choice<br>
+            <strong>Bill paid by:</strong> The Developer (100% on me)<br>
+            <strong>Expires:</strong> Never ♾️
+          </div>
+          <div class="voucher-fineprint">*Non-transferable • Screenshot to redeem anytime*</div>
         </div>
+
         <button class="back-btn" onclick="navigateToPage(1)">← Back to Music Player</button>
       </div>
     </div>
