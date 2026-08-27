@@ -110,7 +110,14 @@
       font-size: 1.25rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
     }
 
-    .playlist { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; }
+    /* Scrollable Playlist Area */
+    .playlist {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 8px;
+      max-height: 125px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
     .track-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
@@ -134,15 +141,11 @@
       background: linear-gradient(160deg, rgba(46, 16, 37, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
       border-radius: 22px; padding: 20px 16px; border: 1px solid rgba(255, 75, 114, 0.3); text-align: center;
     }
-    .badge {
-      display: inline-block; background: rgba(255, 75, 114, 0.15); color: var(--accent-pink);
-      border: 1px solid rgba(255, 75, 114, 0.3); padding: 3px 12px; border-radius: 20px;
-      font-size: 0.72rem; font-weight: 700; margin-bottom: 6px;
-    }
     .letter-title {
-      font-size: 1.35rem; font-weight: 800;
+      font-size: 1.4rem; font-weight: 800;
       background: linear-gradient(90deg, #fff, #ffccd5, var(--gold));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
     }
     .mystery-photo-wrap {
       width: 140px; height: 140px; margin: 0 auto 10px; position: relative;
@@ -160,7 +163,6 @@
     }
     .scramble-overlay-text.hidden { opacity: 0; pointer-events: none; }
     
-    /* Central Content Box */
     .content-box {
       background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px;
       text-align: left; font-size: 0.88rem; line-height: 1.6; color: #e2e8f0;
@@ -168,7 +170,6 @@
       transition: all 0.4s ease;
     }
 
-    /* Voucher State when Applied to Box */
     .content-box.voucher-active {
       background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
       border: 1.5px dashed var(--gold);
@@ -199,7 +200,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- PAGE 1: SPOTIFY PLAYER -->
     <div id="page1" class="page-view active">
       <div class="spotify-card">
         <div class="top-badge">
@@ -233,6 +233,7 @@
           <button class="control-icon" onclick="playNextTrack()">⏭</button>
           <button class="control-icon" onclick="triggerConfetti()">🎉</button>
         </div>
+        
         <div class="playlist">
           <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0)">
             <div class="track-left"><span class="track-num">1</span><span class="track-name">Amsham</span></div>
@@ -246,6 +247,14 @@
             <div class="track-left"><span class="track-num">3</span><span class="track-name">Blue</span></div>
             <span class="track-status">▶</span>
           </div>
+          <div class="track-item" id="track-3" onclick="loadAndPlayTrack(3)">
+            <div class="track-left"><span class="track-num">4</span><span class="track-name">Poovvukkul</span></div>
+            <span class="track-status">▶</span>
+          </div>
+          <div class="track-item" id="track-4" onclick="loadAndPlayTrack(4)">
+            <div class="track-left"><span class="track-num">5</span><span class="track-name">Dandelions</span></div>
+            <span class="track-status">▶</span>
+          </div>
         </div>
       </div>
       <div class="action-card">
@@ -253,18 +262,15 @@
       </div>
     </div>
 
-    <!-- PAGE 2: MESSAGE & SWAPPING CONTENT -->
     <div id="page2" class="page-view">
       <div class="letter-wrapper">
-  <h1 class="letter-title">Happy Birthday Nandhu !!🍾</h1>
-
+        <h1 class="letter-title">Happy Birthday Nandhu !!🍾</h1>
         
         <div class="mystery-photo-wrap">
           <img id="mysteryPhoto" src="wish_photo.jpg" alt="Wish" class="mystery-photo" onerror="this.src='photo.jpg'" />
           <div id="scrambleText" class="scramble-overlay-text">🔒 Locked Wish</div>
         </div>
 
-        <!-- Custom Birthday Letter -->
         <div id="mainContentBox" class="content-box">
           Another year hotter, smarter, and completely unmatched. 👑<br><br>
           May your year be filled with spontaneous road trips, zero awkward moments, great Spotify mixes on repeat, and food that never disappoints.<br><br>
@@ -285,7 +291,9 @@
     const tracklist = [
       { title: "Amsham ✨", artist: "Track 01 • Birthday Edition", src: "Amsham.mp3" },
       { title: "Arikil 🔥", artist: "Track 02 • Birthday Edition", src: "Arikil.mp3" },
-      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" }
+      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" },
+      { title: "Poovvukkul 🌸", artist: "Track 04 • Birthday Edition", src: "Poovvukkul.mp3" },
+      { title: "Dandelions 🌼", artist: "Track 05 • Birthday Edition", src: "Dandelions.mp3" }
     ];
     let currentTrackIndex = 0;
     const audio = document.getElementById('audioTrack');
@@ -396,7 +404,7 @@
           <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
           <div class="voucher-desc">
             <strong>Valid at:</strong> Literally any spot of your choice<br>
-            <strong>Bill paid by:</strong> Yours Truly<br>
+            <strong>Bill paid by:</strong> Yours truly<br>
             <strong>Expires:</strong> Never ♾️
           </div>
           <div class="voucher-fineprint">*Non-transferable • Screenshot to redeem anytime*</div>
