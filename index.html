@@ -110,13 +110,9 @@
       font-size: 1.25rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
     }
 
-    /* Scrollable Playlist Area */
     .playlist {
       border-top: 1px solid rgba(255,255,255,0.08);
       padding-top: 8px;
-      max-height: 125px;
-      overflow-y: auto;
-      padding-right: 4px;
     }
     .track-item {
       display: flex; justify-content: space-between; align-items: center;
@@ -247,14 +243,6 @@
             <div class="track-left"><span class="track-num">3</span><span class="track-name">Blue</span></div>
             <span class="track-status">▶</span>
           </div>
-          <div class="track-item" id="track-3" onclick="loadAndPlayTrack(3)">
-            <div class="track-left"><span class="track-num">4</span><span class="track-name">Poovvukkul</span></div>
-            <span class="track-status">▶</span>
-          </div>
-          <div class="track-item" id="track-4" onclick="loadAndPlayTrack(4)">
-            <div class="track-left"><span class="track-num">5</span><span class="track-name">Dandelions</span></div>
-            <span class="track-status">▶</span>
-          </div>
         </div>
       </div>
       <div class="action-card">
@@ -291,9 +279,7 @@
     const tracklist = [
       { title: "Amsham ✨", artist: "Track 01 • Birthday Edition", src: "Amsham.mp3" },
       { title: "Arikil 🔥", artist: "Track 02 • Birthday Edition", src: "Arikil.mp3" },
-      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" },
-      { title: "Poovvukkul 🌸", artist: "Track 04 • Birthday Edition", src: "Poovvukkul.mp3" },
-      { title: "Dandelions 🌼", artist: "Track 05 • Birthday Edition", src: "Dandelions.mp3" }
+      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" }
     ];
     let currentTrackIndex = 0;
     const audio = document.getElementById('audioTrack');
@@ -396,7 +382,6 @@
         document.getElementById('mysteryPhoto').classList.add('revealed');
         document.getElementById('scrambleText').classList.add('hidden');
         
-        // Morph the content box into the Shawarma Voucher
         const box = document.getElementById('mainContentBox');
         box.classList.add('voucher-active');
         box.innerHTML = `
@@ -420,4 +405,3 @@
   </script>
 </body>
 </html>
-  
