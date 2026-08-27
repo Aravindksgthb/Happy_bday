@@ -1,4 +1,4 @@
-          <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,7 +6,7 @@
   <title>Birthday VIP Edition 👑</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: auto !important; -webkit-user-select: auto !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --spotify-green: #1db954;
       --accent-pink: #ff4b72;
@@ -30,18 +30,18 @@
     .page-view.active { display: flex; flex-direction: column; gap: 12px; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* SPOTIFY PLAYER WITH VINYL */
+    /* SPOTIFY PLAYER WITH SLEEK CIRCULAR VINYL */
     .spotify-card {
       background: linear-gradient(180deg, rgba(35, 30, 50, 0.85) 0%, var(--card-bg) 100%);
       border-radius: 22px;
-      padding: 18px 16px;
+      padding: 16px;
       box-shadow: 0 16px 36px rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.1);
       backdrop-filter: blur(12px);
     }
     .top-badge {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px; font-size: 0.75rem; color: #cbd5e1;
+      margin-bottom: 10px; font-size: 0.75rem; color: #cbd5e1;
     }
     .verified-pill {
       background: rgba(29, 185, 84, 0.15); color: var(--spotify-green);
@@ -49,63 +49,48 @@
       border-radius: 20px; font-weight: 700;
     }
 
-    /* Vinyl + Cover Disc Assembly */
-    .vinyl-stage {
-      width: 190px;
+    /* Grooved Vinyl Stage */
+    .vinyl-wrapper {
+      width: 175px;
       height: 175px;
       margin: 0 auto 12px;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .vinyl-disc {
-      position: absolute;
-      right: 0px;
-      width: 155px;
-      height: 155px;
       border-radius: 50%;
-      background: radial-gradient(circle, #0a0a0a 35%, #2a2a2a 36%, #111 38%, #2a2a2a 58%, #000 62%, #111 100%);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(255,255,255,0.1);
+      background: radial-gradient(circle, #1a1a1a 0%, #000 35%, #222 37%, #0d0d0d 60%, #222 62%, #050505 100%);
+      padding: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(255,255,255,0.08), 0 0 20px rgba(255, 75, 114, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1;
-      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .vinyl-center-groove {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #ff4b72 0%, #a21caf 100%);
-      border: 3px solid #000;
-      box-shadow: 0 0 4px rgba(0,0,0,0.6);
-    }
-    .album-art-wrap {
-      width: 155px;
-      height: 155px;
       position: relative;
-      z-index: 2;
     }
     .album-art {
-      width: 100%;
-      height: 100%;
-      border-radius: 14px;
+      width: 115px;
+      height: 115px;
+      border-radius: 50%;
       object-fit: cover;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      border: 3px solid #18181b;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
-
-    /* Spin Animation */
+    .vinyl-spindle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #090d16;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      z-index: 5;
+    }
     .spinning {
-      animation: spin 3.5s linear infinite;
+      animation: spin 6s linear infinite;
     }
     @keyframes spin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
 
-    .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .track-title { font-size: 1.2rem; font-weight: 800; color: #fff; }
-    .artist-name { color: #94a3b8; font-size: 0.8rem; margin-top: 2px; }
+    .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .track-title { font-size: 1.15rem; font-weight: 800; color: #fff; }
+    .artist-name { color: #94a3b8; font-size: 0.78rem; margin-top: 1px; }
     
     .heart-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b; }
     .heart-btn.liked { color: var(--spotify-green); transform: scale(1.15); }
@@ -118,24 +103,24 @@
     .equalizer.playing .eq-bar:nth-child(4) { animation: bounce 0.7s infinite alternate 0.1s ease-in-out; }
     @keyframes bounce { 0% { height: 3px; } 100% { height: 16px; } }
 
-    .progress-area { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 6px; }
+    .progress-area { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
     .progress-bar-bg { background: rgba(255,255,255,0.12); height: 5px; border-radius: 3px; cursor: pointer; }
     .progress-fill { background: var(--spotify-green); height: 100%; width: 0%; border-radius: 3px; }
     .time-indicators { display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; }
 
-    .player-controls { display: flex; justify-content: space-evenly; align-items: center; margin: 4px 0 10px; }
+    .player-controls { display: flex; justify-content: space-evenly; align-items: center; margin: 2px 0 8px; }
     .control-icon { color: #94a3b8; font-size: 1.15rem; background: none; border: none; cursor: pointer; padding: 6px; }
     .play-btn {
-      background: var(--spotify-green); border: none; width: 48px; height: 48px;
+      background: var(--spotify-green); border: none; width: 46px; height: 46px;
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
+      font-size: 1.25rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
     }
 
-    .playlist { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; }
+    .playlist { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; }
     .track-item {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
-      margin-bottom: 6px; font-size: 0.85rem; cursor: pointer; border-left: 3px solid transparent;
+      padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
+      margin-bottom: 5px; font-size: 0.82rem; cursor: pointer; border-left: 3px solid transparent;
     }
     .track-item.playing { background: rgba(29, 185, 84, 0.15); border-left: 3px solid var(--spotify-green); }
     .track-item.playing .track-name, .track-item.playing .track-status { color: var(--spotify-green); font-weight: 700; }
@@ -143,30 +128,30 @@
     .track-num { color: #64748b; font-size: 0.8rem; }
     .track-status { font-size: 0.8rem; color: #64748b; }
 
-    .action-card { background: rgba(22, 27, 38, 0.85); border-radius: 18px; padding: 12px; text-align: center; }
+    .action-card { background: rgba(22, 27, 38, 0.85); border-radius: 18px; padding: 10px; text-align: center; }
     .open-btn {
       background: linear-gradient(45deg, var(--accent-pink), #ff758c); color: white; border: none;
-      padding: 13px 20px; font-size: 0.95rem; font-weight: 700; border-radius: 9999px;
+      padding: 12px 20px; font-size: 0.92rem; font-weight: 700; border-radius: 9999px;
       cursor: pointer; width: 100%; box-shadow: 0 4px 16px rgba(255, 75, 114, 0.4);
     }
 
-    /* MESSAGE PAGE */
+    /* MESSAGE PAGE WITH REPLACING LETTER CARD */
     .letter-wrapper {
       background: linear-gradient(160deg, rgba(46, 16, 37, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-      border-radius: 22px; padding: 22px 16px; border: 1px solid rgba(255, 75, 114, 0.3); text-align: center;
+      border-radius: 22px; padding: 20px 16px; border: 1px solid rgba(255, 75, 114, 0.3); text-align: center;
     }
     .badge {
       display: inline-block; background: rgba(255, 75, 114, 0.15); color: var(--accent-pink);
       border: 1px solid rgba(255, 75, 114, 0.3); padding: 3px 12px; border-radius: 20px;
-      font-size: 0.72rem; font-weight: 700; margin-bottom: 8px;
+      font-size: 0.72rem; font-weight: 700; margin-bottom: 6px;
     }
     .letter-title {
-      font-size: 1.4rem; font-weight: 800;
+      font-size: 1.35rem; font-weight: 800;
       background: linear-gradient(90deg, #fff, #ffccd5, var(--gold));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
     }
     .mystery-photo-wrap {
-      width: 140px; height: 140px; margin: 0 auto 12px; position: relative;
+      width: 140px; height: 140px; margin: 0 auto 10px; position: relative;
       border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4);
     }
     .mystery-photo {
@@ -180,49 +165,38 @@
       font-size: 0.75rem; font-weight: 800; color: #fef08a; background: rgba(0,0,0,0.35);
     }
     .scramble-overlay-text.hidden { opacity: 0; pointer-events: none; }
+    
     .letter-box {
       background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px;
       text-align: left; font-size: 0.88rem; line-height: 1.6; color: #e2e8f0;
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
+    .letter-box.hidden { display: none; }
 
-    /* Candle Ceremony with Blow Effect */
     .candle-section {
-      margin-top: 14px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3);
-      padding: 12px; border-radius: 16px; cursor: pointer; position: relative; overflow: hidden;
+      margin-top: 12px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 10px; border-radius: 16px; cursor: pointer;
     }
-    .candle-flame {
-      font-size: 2.1rem;
-      display: inline-block;
-      filter: drop-shadow(0 0 10px #fbbf24);
-      transition: transform 0.4s ease, filter 0.4s ease;
-    }
-    .candle-flame.blowing {
-      animation: blowAway 0.8s forwards ease-out;
-    }
-    @keyframes blowAway {
-      0% { transform: scale(1) skewX(0deg); opacity: 1; filter: drop-shadow(0 0 15px #f59e0b); }
-      40% { transform: scale(1.3) skewX(-25deg) translateX(8px); opacity: 0.8; }
-      100% { transform: scale(0.2) translateY(-20px); opacity: 0; }
-    }
-
-    .candle-instruction { font-size: 0.82rem; color: #fef08a; font-weight: 700; margin-top: 4px; }
+    .candle-flame { font-size: 1.9rem; filter: drop-shadow(0 0 10px #fbbf24); transition: transform 0.3s; }
+    .candle-flame.blowing { transform: scale(1.3) translateX(10px); opacity: 0.4; }
+    .candle-instruction { font-size: 0.8rem; color: #fef08a; font-weight: 700; margin-top: 3px; }
     
-    /* VIP SHAWARMA VOUCHER */
+    /* SHAWARMA VOUCHER (TAKES THE LETTER BOX'S PLACE) */
     #fortuneCard {
       display: none;
-      margin-top: 14px;
-      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%);
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
       border: 1.5px dashed var(--gold);
       border-radius: 16px;
       padding: 14px;
       text-align: center;
       box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+      animation: slideIn 0.5s ease forwards;
     }
     .voucher-tag { font-size: 0.72rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
-    .voucher-title { font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+    .voucher-title { font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
     .voucher-desc {
       font-size: 0.85rem; line-height: 1.6; color: #e2e8f0; text-align: left;
-      background: rgba(0, 0, 0, 0.25); padding: 8px 12px; border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35); padding: 10px 12px; border-radius: 10px;
     }
     .voucher-fineprint { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; font-style: italic; }
 
@@ -234,7 +208,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- PAGE 1: VINYL SPOTIFY PLAYER -->
+    <!-- PAGE 1: SPOTIFY PLAYER -->
     <div id="page1" class="page-view active">
       <div class="spotify-card">
         <div class="top-badge">
@@ -242,14 +216,10 @@
           <span>BIRTHDAY SOUNDTRACK</span>
         </div>
 
-        <!-- Vinyl Record + Cover Stage -->
-        <div class="vinyl-stage">
-          <div class="album-art-wrap">
-            <img id="albumArt" src="photo.jpg" alt="Cover" class="album-art" />
-          </div>
-          <div class="vinyl-disc" id="vinylDisc">
-            <div class="vinyl-center-groove"></div>
-          </div>
+        <!-- Integrated Grooved Vinyl Assembly -->
+        <div class="vinyl-wrapper" id="vinylWrapper">
+          <img id="albumArt" src="photo.jpg" alt="Cover" class="album-art" />
+          <div class="vinyl-spindle"></div>
         </div>
 
         <div class="track-header">
@@ -293,27 +263,25 @@
       </div>
     </div>
 
-    <!-- PAGE 2: MESSAGE & CANDLE WITH BLOW-OUT ANIMATION -->
+    <!-- PAGE 2: MESSAGE & SWAPPING VOUCHER -->
     <div id="page2" class="page-view">
       <div class="letter-wrapper">
         <div style="font-size: 2rem; margin-bottom: 2px;">👑</div>
         <span class="badge">OFFICIAL VIP LETTER</span>
         <h1 class="letter-title">Happy Birthday! 🎉</h1>
+        
         <div class="mystery-photo-wrap">
           <img id="mysteryPhoto" src="wish_photo.jpg" alt="Wish" class="mystery-photo" onerror="this.src='photo.jpg'" />
           <div id="scrambleText" class="scramble-overlay-text">🔒 Locked Wish</div>
         </div>
-        <div class="letter-box">
-          Wishing you the most extraordinary year ahead! May this year bring you endless good music, spontaneous adventures, zero stress, and all the success you've been working toward.<br><br>
-          Thank you for always bringing the highest energy, top-tier laughs, and unmatched vibes. Keep shining, stay iconic, and never stop being the absolute main character! ✨
-        </div>
 
-        <div class="candle-section" id="candleBox" onclick="blowCandleWish()">
-          <div class="candle-flame" id="flameEmoji">🕯️🔥</div>
-          <div class="candle-instruction" id="candleText">Tap candle to blow flame & unscramble photo!</div>
-        </div>
-        
-        <!-- Shawarma Voucher -->
+        <!-- The Message Card (Gets Replaced on Blow) -->
+        <div id="letterBox" class="letter-box">
+          Wishing Another year hotter, smarter, and completely unmatched. 👑
+​May your year be filled with spontaneous road trips, zero awkward moments, great Spotify mixes on repeat, and food that never disappoints.
+​Keep serving main-character energy, laughing at the most unhinged things, and staying effortlessly iconic. The world simply couldn't handle you on low battery! ✨🥂
+
+        <!-- The Voucher (Directly Replaces the Letter Box) -->
         <div id="fortuneCard">
           <div class="voucher-tag">🎟️ OFFICIAL VIP VOUCHER</div>
           <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
@@ -323,6 +291,11 @@
             <strong>Expires:</strong> Never ♾️
           </div>
           <div class="voucher-fineprint">*Non-transferable • Screenshot to redeem anytime*</div>
+        </div>
+
+        <div class="candle-section" id="candleBox" onclick="blowCandleWish()">
+          <div class="candle-flame" id="flameEmoji">🕯️🔥</div>
+          <div class="candle-instruction" id="candleText">Tap candle to blow flame & claim reward!</div>
         </div>
 
         <button class="back-btn" onclick="navigateToPage(1)">← Back to Music Player</button>
@@ -345,7 +318,7 @@
     const trackTitleEl = document.getElementById('trackTitle');
     const artistNameEl = document.getElementById('artistName');
     const equalizer = document.getElementById('equalizer');
-    const vinylDisc = document.getElementById('vinylDisc');
+    const vinylWrapper = document.getElementById('vinylWrapper');
 
     function initPlayer() {
       audio.src = tracklist[0].src;
@@ -368,7 +341,7 @@
       audio.play().then(() => {
         playBtn.textContent = '⏸';
         equalizer.classList.add('playing');
-        vinylDisc.classList.add('spinning');
+        vinylWrapper.classList.add('spinning');
       }).catch(() => { playBtn.textContent = '▶'; });
       triggerConfetti();
     }
@@ -378,13 +351,13 @@
         audio.play().then(() => {
           playBtn.textContent = '⏸';
           equalizer.classList.add('playing');
-          vinylDisc.classList.add('spinning');
+          vinylWrapper.classList.add('spinning');
         });
       } else {
         audio.pause();
         playBtn.textContent = '▶';
         equalizer.classList.remove('playing');
-        vinylDisc.classList.remove('spinning');
+        vinylWrapper.classList.remove('spinning');
       }
     }
 
@@ -432,13 +405,17 @@
       setTimeout(() => {
         flame.classList.remove('blowing');
         flame.textContent = '🕯️💨';
-        document.getElementById('candleText').textContent = '✨ Wish sent & photo unlocked! ✨';
+        document.getElementById('candleText').textContent = '✨ Wish granted & reward unlocked! ✨';
         document.getElementById('candleText').style.color = '#86efac';
         document.getElementById('mysteryPhoto').classList.add('revealed');
         document.getElementById('scrambleText').classList.add('hidden');
+        
+        // Hide message card and reveal voucher in its place
+        document.getElementById('letterBox').classList.add('hidden');
         document.getElementById('fortuneCard').style.display = 'block';
+
         if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-      }, 500);
+      }, 400);
     }
 
     function triggerConfetti() {
