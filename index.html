@@ -7,7 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --spotify-green: #1db954;
       --accent-pink: #ff4b72;
@@ -15,11 +14,10 @@
       --bg-dark: #090d16;
       --card-bg: rgba(22, 27, 38, 0.85);
     }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: radial-gradient(circle at 50% 0%, #2e1065 0%, var(--bg-dark) 100%);
-      color: #ffffff;
+      color: #fff;
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -27,560 +25,217 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    .container { max-width: 380px; width: 100%; position: relative; }
+    .page-view { display: none; width: 100%; animation: slideIn 0.35s ease; }
+    .page-view.active { display: flex; flex-direction: column; gap: 12px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .container {
-      max-width: 380px;
-      width: 100%;
-      position: relative;
-    }
-
-    /* --- PAGE VIEW TRANSITIONS --- */
-    .page-view {
-      display: none;
-      width: 100%;
-      animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .page-view.active {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* --- SPOTIFY PLAYER SECTION --- */
+    /* SPOTIFY CARD */
     .spotify-card {
       background: linear-gradient(180deg, rgba(35, 30, 50, 0.85) 0%, var(--card-bg) 100%);
       border-radius: 22px;
       padding: 18px 16px;
-      box-shadow: 0 16px 36px rgba(0,0,0,0.6), 0 0 20px rgba(236, 72, 153, 0.15);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.1);
       backdrop-filter: blur(12px);
-      position: relative;
     }
-
     .top-badge {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 0.75rem;
-      color: #cbd5e1;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; font-size: 0.75rem; color: #cbd5e1;
     }
-
     .verified-pill {
-      background: rgba(29, 185, 84, 0.15);
-      color: var(--spotify-green);
-      border: 1px solid rgba(29, 185, 84, 0.3);
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      background: rgba(29, 185, 84, 0.15); color: var(--spotify-green);
+      border: 1px solid rgba(29, 185, 84, 0.3); padding: 3px 10px;
+      border-radius: 20px; font-weight: 700;
     }
-
-    .album-art-wrap {
-      width: 170px;
-      height: 170px;
-      margin: 0 auto 14px;
-      position: relative;
-    }
-
-    .album-art {
-      width: 100%;
-      height: 100%;
-      border-radius: 16px;
-      object-fit: cover;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.7), 0 0 18px rgba(255, 75, 114, 0.25);
-      transition: transform 0.3s ease;
-    }
-
-    .album-art.playing {
-      box-shadow: 0 8px 26px rgba(0,0,0,0.8), 0 0 22px rgba(29, 185, 84, 0.4);
-    }
-
-    .track-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .track-title-wrap {
-      text-align: left;
-      max-width: 75%;
-    }
-
+    .album-art-wrap { width: 170px; height: 170px; margin: 0 auto 14px; }
+    .album-art { width: 100%; height: 100%; border-radius: 16px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.7); }
+    .album-art.playing { box-shadow: 0 8px 26px rgba(0,0,0,0.8), 0 0 20px rgba(29, 185, 84, 0.4); }
+    
+    .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .track-title { font-size: 1.2rem; font-weight: 800; color: #fff; }
     .artist-name { color: #94a3b8; font-size: 0.8rem; margin-top: 2px; }
-
-    .heart-btn {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      cursor: pointer;
-      color: #64748b;
-      transition: transform 0.15s, color 0.2s;
-    }
-    .heart-btn.liked {
-      color: var(--spotify-green);
-      transform: scale(1.15);
-    }
-
-    .equalizer {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 16px;
-    }
-
-    .eq-bar {
-      width: 3px;
-      height: 3px;
-      background: var(--spotify-green);
-      border-radius: 2px;
-    }
-
+    
+    .heart-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b; }
+    .heart-btn.liked { color: var(--spotify-green); transform: scale(1.15); }
+    
+    .equalizer { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+    .eq-bar { width: 3px; height: 3px; background: var(--spotify-green); border-radius: 2px; }
     .equalizer.playing .eq-bar:nth-child(1) { animation: bounce 0.6s infinite alternate ease-in-out; }
     .equalizer.playing .eq-bar:nth-child(2) { animation: bounce 0.8s infinite alternate 0.2s ease-in-out; }
     .equalizer.playing .eq-bar:nth-child(3) { animation: bounce 0.5s infinite alternate 0.4s ease-in-out; }
     .equalizer.playing .eq-bar:nth-child(4) { animation: bounce 0.7s infinite alternate 0.1s ease-in-out; }
+    @keyframes bounce { 0% { height: 3px; } 100% { height: 16px; } }
 
-    @keyframes bounce {
-      0% { height: 3px; }
-      100% { height: 16px; }
-    }
+    .progress-area { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 6px; }
+    .progress-bar-bg { background: rgba(255,255,255,0.12); height: 5px; border-radius: 3px; cursor: pointer; }
+    .progress-fill { background: var(--spotify-green); height: 100%; width: 0%; border-radius: 3px; }
+    .time-indicators { display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; }
 
-    .progress-area {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin: 8px 0 6px;
-    }
-
-    .progress-bar-bg {
-      background: rgba(255,255,255,0.12);
-      height: 5px;
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .progress-fill {
-      background: var(--spotify-green);
-      height: 100%;
-      width: 0%;
-      border-radius: 3px;
-      transition: width 0.1s linear;
-    }
-
-    .time-indicators {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: #64748b;
-    }
-
-    .player-controls {
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      margin: 4px 0 10px;
-    }
-
-    .control-icon {
-      color: #94a3b8;
-      font-size: 1.15rem;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 6px;
-      transition: transform 0.1s;
-    }
-    .control-icon:active { transform: scale(0.85); color: #fff; }
-
+    .player-controls { display: flex; justify-content: space-evenly; align-items: center; margin: 4px 0 10px; }
+    .control-icon { color: #94a3b8; font-size: 1.15rem; background: none; border: none; cursor: pointer; padding: 6px; }
     .play-btn {
-      background: var(--spotify-green);
-      border: none;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      cursor: pointer;
-      color: black;
-      box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
-    }
-    .play-btn:active { transform: scale(0.92); }
-
-    .playlist {
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding-top: 10px;
+      background: var(--spotify-green); border: none; width: 48px; height: 48px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
     }
 
+    .playlist { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; }
     .track-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 9px 12px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.03);
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, transform 0.1s;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
+      margin-bottom: 6px; font-size: 0.85rem; cursor: pointer; border-left: 3px solid transparent;
     }
-    .track-item:active { transform: scale(0.98); }
-
-    .track-item.playing {
-      background: rgba(29, 185, 84, 0.15);
-      border-left: 3px solid var(--spotify-green);
-    }
-
-    .track-item.playing .track-name,
-    .track-item.playing .track-status {
-      color: var(--spotify-green);
-      font-weight: 700;
-    }
-
+    .track-item.playing { background: rgba(29, 185, 84, 0.15); border-left: 3px solid var(--spotify-green); }
+    .track-item.playing .track-name, .track-item.playing .track-status { color: var(--spotify-green); font-weight: 700; }
     .track-left { display: flex; align-items: center; gap: 8px; }
     .track-num { color: #64748b; font-size: 0.8rem; }
     .track-status { font-size: 0.8rem; color: #64748b; }
 
-    .action-card {
-      background: rgba(22, 27, 38, 0.85);
-      border-radius: 18px;
-      padding: 12px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
+    .action-card { background: rgba(22, 27, 38, 0.85); border-radius: 18px; padding: 12px; text-align: center; }
     .open-btn {
-      background: linear-gradient(45deg, var(--accent-pink), #ff758c);
-      color: white;
-      border: none;
-      padding: 13px 20px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      border-radius: 9999px;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 16px rgba(255, 75, 114, 0.4);
-      transition: transform 0.15s ease;
-      letter-spacing: 0.3px;
+      background: linear-gradient(45deg, var(--accent-pink), #ff758c); color: white; border: none;
+      padding: 13px 20px; font-size: 0.95rem; font-weight: 700; border-radius: 9999px;
+      cursor: pointer; width: 100%; box-shadow: 0 4px 16px rgba(255, 75, 114, 0.4);
     }
-    .open-btn:active { transform: scale(0.97); }
 
-    /* --- PAGE 2: MESSAGE VIEW WITH SECOND PHOTO --- */
+    /* MESSAGE PAGE */
     .letter-wrapper {
       background: linear-gradient(160deg, rgba(46, 16, 37, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-      border-radius: 22px;
-      padding: 22px 16px;
-      border: 1px solid rgba(255, 75, 114, 0.3);
-      box-shadow: 0 16px 36px rgba(0,0,0,0.6), 0 0 30px rgba(255, 75, 114, 0.15);
-      position: relative;
-      text-align: center;
+      border-radius: 22px; padding: 22px 16px; border: 1px solid rgba(255, 75, 114, 0.3); text-align: center;
     }
-
-    .crown-icon {
-      font-size: 2rem;
-      margin-bottom: 2px;
-      animation: float 2.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes float {
-      from { transform: translateY(0px) rotate(-3deg); }
-      to { transform: translateY(-6px) rotate(3deg); }
-    }
-
     .badge {
-      display: inline-block;
-      background: rgba(255, 75, 114, 0.15);
-      color: var(--accent-pink);
-      border: 1px solid rgba(255, 75, 114, 0.3);
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
+      display: inline-block; background: rgba(255, 75, 114, 0.15); color: var(--accent-pink);
+      border: 1px solid rgba(255, 75, 114, 0.3); padding: 3px 12px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; margin-bottom: 8px;
     }
-
     .letter-title {
-      font-size: 1.4rem;
-      font-weight: 800;
+      font-size: 1.4rem; font-weight: 800;
       background: linear-gradient(90deg, #fff, #ffccd5, var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-      line-height: 1.2;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;
     }
-
-    /* Second Photo Wrap */
     .mystery-photo-wrap {
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 12px;
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid rgba(251, 191, 36, 0.4);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      width: 140px; height: 140px; margin: 0 auto 12px; position: relative;
+      border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4);
     }
-
     .mystery-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: blur(14px) grayscale(0.8) contrast(150%);
-      transform: scale(1.15);
-      transition: filter 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s ease;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(14px) grayscale(0.8); transform: scale(1.15);
+      transition: filter 1.2s ease, transform 1.2s ease;
     }
-
-    .mystery-photo.revealed {
-      filter: blur(0px) grayscale(0) contrast(100%);
-      transform: scale(1);
-    }
-
+    .mystery-photo.revealed { filter: blur(0px) grayscale(0); transform: scale(1); }
     .scramble-overlay-text {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: #fef08a;
-      background: rgba(0,0,0,0.35);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: opacity 0.5s ease;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: #fef08a; background: rgba(0,0,0,0.35);
     }
-
-    .scramble-overlay-text.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
+    .scramble-overlay-text.hidden { opacity: 0; pointer-events: none; }
     .letter-box {
-      background: rgba(255,255,255,0.04);
-      border-radius: 14px;
-      padding: 14px;
-      text-align: left;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px;
+      text-align: left; font-size: 0.88rem; line-height: 1.6; color: #e2e8f0;
     }
-
-    /* Interactive Candle Box */
     .candle-section {
-      margin-top: 14px;
-      background: rgba(251, 191, 36, 0.08);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      padding: 12px;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: transform 0.15s, background 0.3s;
+      margin-top: 14px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 12px; border-radius: 16px; cursor: pointer;
     }
-    .candle-section:active { transform: scale(0.97); }
-
-    .candle-flame {
-      font-size: 2rem;
-      display: inline-block;
-      transition: filter 0.3s ease;
-      filter: drop-shadow(0 0 10px #fbbf24);
-      animation: flicker 0.8s infinite alternate;
-    }
-
-    @keyframes flicker {
-      0% { transform: scale(1); filter: drop-shadow(0 0 8px #fbbf24); }
-      100% { transform: scale(1.08) rotate(1deg); filter: drop-shadow(0 0 14px #f59e0b); }
-    }
-
-    .candle-instruction {
-      font-size: 0.82rem;
-      color: #fef08a;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
+    .candle-flame { font-size: 2rem; filter: drop-shadow(0 0 10px #fbbf24); }
+    .candle-instruction { font-size: 0.82rem; color: #fef08a; font-weight: 700; margin-top: 4px; }
     #fortuneCard {
-      display: none;
-      margin-top: 12px;
-      background: linear-gradient(135deg, rgba(29, 185, 84, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
-      border: 1px solid var(--spotify-green);
-      padding: 12px;
-      border-radius: 14px;
-      font-size: 0.85rem;
-      color: #86efac;
-      animation: fadeIn 0.5s ease-out;
-      line-height: 1.5;
+      display: none; margin-top: 12px; background: rgba(29, 185, 84, 0.2);
+      border: 1px solid var(--spotify-green); padding: 12px; border-radius: 14px;
+      font-size: 0.85rem; color: #86efac; line-height: 1.5;
     }
-
     .back-btn {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #cbd5e1;
-      padding: 10px;
-      border-radius: 9999px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      width: 100%;
-      margin-top: 12px;
+      background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 10px;
+      border-radius: 9999px; cursor: pointer; font-size: 0.85rem; width: 100%; margin-top: 12px; border: none;
     }
-    .back-btn:active { background: rgba(255,255,255,0.14); }
   </style>
 </head>
 <body>
-
   <div class="container">
-
-    <!-- PAGE 1: SPOTIFY PLAYER (USES photo.jpg) -->
+    <!-- PAGE 1 -->
     <div id="page1" class="page-view active">
-      
       <div class="spotify-card">
         <div class="top-badge">
           <div class="verified-pill">✔ VERIFIED VIP</div>
           <span>BIRTHDAY SOUNDTRACK</span>
         </div>
-
         <div class="album-art-wrap">
-          <img id="albumArt" src="photo.jpg" alt="Birthday Cover" class="album-art" onerror="this.src='https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80'">
+          <img id="albumArt" src="photo.jpg" alt="Cover" class="album-art" />
         </div>
-
         <div class="track-header">
-          <div class="track-title-wrap">
+          <div>
             <div class="track-title" id="trackTitle">Amsham ✨</div>
             <div class="artist-name" id="artistName">Track 01 • Birthday Edition</div>
           </div>
-          <button class="heart-btn" id="heartBtn" onclick="toggleHeart()" title="Save to favorites">♥</button>
+          <button class="heart-btn" id="heartBtn" onclick="toggleHeart()">♥</button>
           <div class="equalizer" id="equalizer">
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-            <div class="eq-bar"></div>
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
           </div>
         </div>
-
         <audio id="audioTrack" preload="auto"></audio>
-
         <div class="progress-area" onclick="seekAudio(event)">
-          <div class="progress-bar-bg">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <div class="time-indicators">
-            <span id="currentTime">0:00</span>
-            <span id="totalDuration">0:00</span>
-          </div>
+          <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="time-indicators"><span id="currentTime">0:00</span><span id="totalDuration">0:00</span></div>
         </div>
-
         <div class="player-controls">
-          <button class="control-icon" onclick="playPrevTrack()" title="Previous">⏮</button>
-          <button class="play-btn" id="playPauseBtn" onclick="toggleAudio()" title="Play/Pause">▶</button>
-          <button class="control-icon" onclick="playNextTrack()" title="Next">⏭</button>
-          <button class="control-icon" onclick="triggerConfetti()" title="Confetti">🎉</button>
+          <button class="control-icon" onclick="playPrevTrack()">⏮</button>
+          <button class="play-btn" id="playPauseBtn" onclick="toggleAudio()">▶</button>
+          <button class="control-icon" onclick="playNextTrack()">⏭</button>
+          <button class="control-icon" onclick="triggerConfetti()">🎉</button>
         </div>
-
         <div class="playlist">
           <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0)">
-            <div class="track-left">
-              <span class="track-num">1</span>
-              <span class="track-name">Amsham</span>
-            </div>
+            <div class="track-left"><span class="track-num">1</span><span class="track-name">Amsham</span></div>
             <span class="track-status">▶</span>
           </div>
-
           <div class="track-item" id="track-1" onclick="loadAndPlayTrack(1)">
-            <div class="track-left">
-              <span class="track-num">2</span>
-              <span class="track-name">Arikil</span>
-            </div>
+            <div class="track-left"><span class="track-num">2</span><span class="track-name">Arikil</span></div>
             <span class="track-status">▶</span>
           </div>
-
           <div class="track-item" id="track-2" onclick="loadAndPlayTrack(2)">
-            <div class="track-left">
-              <span class="track-num">3</span>
-              <span class="track-name">Blue</span>
-            </div>
+            <div class="track-left"><span class="track-num">3</span><span class="track-name">Blue</span></div>
             <span class="track-status">▶</span>
           </div>
         </div>
       </div>
-
       <div class="action-card">
         <button class="open-btn" onclick="navigateToPage(2)">Open Birthday Card ✉️</button>
       </div>
-
     </div>
 
-    <!-- PAGE 2: MESSAGE & SCRAMBLED SECOND PHOTO (USES wish_photo.jpg) -->
+    <!-- PAGE 2 -->
     <div id="page2" class="page-view">
       <div class="letter-wrapper">
-        <div class="crown-icon">👑</div>
+        <div style="font-size: 2rem; margin-bottom: 2px;">👑</div>
         <span class="badge">OFFICIAL VIP LETTER</span>
         <h1 class="letter-title">Happy Birthday! 🎉</h1>
-        
-        <!-- Second Photo to be Unscrambled -->
         <div class="mystery-photo-wrap">
-          <img id="mysteryPhoto" src="wish_photo.jpg" alt="Wish Photo" class="mystery-photo" onerror="this.src='photo.jpg'">
+          <img id="mysteryPhoto" src="wish_photo.jpg" alt="Wish" class="mystery-photo" onerror="this.src='photo.jpg'" />
           <div id="scrambleText" class="scramble-overlay-text">🔒 Locked Wish</div>
         </div>
-
         <div class="letter-box">
           Wishing you the most extraordinary year ahead! May this year bring you endless good music, spontaneous adventures, zero stress, and all the success you've been working toward.<br><br>
           Thank you for always bringing the highest energy, top-tier laughs, and unmatched vibes. Keep shining, stay iconic, and never stop being the absolute main character! ✨
         </div>
-
-        <!-- Interactive Wish Flame -->
         <div class="candle-section" id="candleBox" onclick="blowCandleWish()">
           <div class="candle-flame" id="flameEmoji">🕯️🔥</div>
           <div class="candle-instruction" id="candleText">Tap candle to blow flame & unscramble photo!</div>
         </div>
-
-        <!-- Unlocked Fortune -->
         <div id="fortuneCard">
           🌟 <strong>BIRTHDAY FORTUNE UNLOCKED:</strong><br>
           <em>"The universe confirms: 100% of your wishes made today are granted priority status. Prepare for high happiness, epic trips, and zero regrets this year!"</em>
         </div>
-
         <button class="back-btn" onclick="navigateToPage(1)">← Back to Music Player</button>
       </div>
     </div>
-
   </div>
 
   <script>
     const tracklist = [
-      {
-        title: "Amsham ✨",
-        artist: "Track 01 • Birthday Edition",
-        src: "Amsham.mp3"
-      },
-      {
-        title: "Arikil 🔥",
-        artist: "Track 02 • Birthday Edition",
-        src: "Arikil.mp3"
-      },
-      {
-        title: "Blue 👑",
-        artist: "Track 03 • Birthday Edition",
-        src: "Blue.mp3"
-      }
+      { title: "Amsham ✨", artist: "Track 01 • Birthday Edition", src: "Amsham.mp3" },
+      { title: "Arikil 🔥", artist: "Track 02 • Birthday Edition", src: "Arikil.mp3" },
+      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" }
     ];
-
     let currentTrackIndex = 0;
     const audio = document.getElementById('audioTrack');
     const playBtn = document.getElementById('playPauseBtn');
@@ -593,43 +248,28 @@
     const albumArt = document.getElementById('albumArt');
 
     function initPlayer() {
-      const initial = tracklist[0];
-      audio.src = initial.src;
-      trackTitleEl.textContent = initial.title;
-      artistNameEl.textContent = initial.artist;
+      audio.src = tracklist[0].src;
+      trackTitleEl.textContent = tracklist[0].title;
+      artistNameEl.textContent = tracklist[0].artist;
     }
     initPlayer();
 
     function loadAndPlayTrack(index) {
       currentTrackIndex = index;
       const track = tracklist[index];
-
       trackTitleEl.textContent = track.title;
       artistNameEl.textContent = track.artist;
-
       document.querySelectorAll('.track-item').forEach((item, idx) => {
-        const statusIcon = item.querySelector('.track-status');
-        if (idx === index) {
-          item.classList.add('playing');
-          statusIcon.textContent = '🔊';
-        } else {
-          item.classList.remove('playing');
-          statusIcon.textContent = '▶';
-        }
+        item.classList.toggle('playing', idx === index);
+        item.querySelector('.track-status').textContent = idx === index ? '🔊' : '▶';
       });
-
       audio.src = track.src;
       audio.load();
       audio.play().then(() => {
         playBtn.textContent = '⏸';
         equalizer.classList.add('playing');
         albumArt.classList.add('playing');
-      }).catch(() => {
-        playBtn.textContent = '▶';
-        equalizer.classList.remove('playing');
-        albumArt.classList.remove('playing');
-      });
-
+      }).catch(() => { playBtn.textContent = '▶'; });
       triggerConfetti();
     }
 
@@ -639,41 +279,64 @@
           playBtn.textContent = '⏸';
           equalizer.classList.add('playing');
           albumArt.classList.add('playing');
-          updateCurrentTrackStatusIcon('🔊');
         });
       } else {
         audio.pause();
         playBtn.textContent = '▶';
         equalizer.classList.remove('playing');
         albumArt.classList.remove('playing');
-        updateCurrentTrackStatusIcon('▶');
       }
     }
 
     function toggleHeart() {
-      const heart = document.getElementById('heartBtn');
-      heart.classList.toggle('liked');
+      document.getElementById('heartBtn').classList.toggle('liked');
       triggerConfetti();
     }
 
-    function updateCurrentTrackStatusIcon(symbol) {
-      const activeTrack = document.getElementById(`track-${currentTrackIndex}`);
-      if (activeTrack) {
-        activeTrack.querySelector('.track-status').textContent = symbol;
-      }
-    }
-
-    function playNextTrack() {
-      const nextIndex = (currentTrackIndex + 1) % tracklist.length;
-      loadAndPlayTrack(nextIndex);
-    }
-
-    function playPrevTrack() {
-      const prevIndex = (currentTrackIndex - 1 + tracklist.length) % tracklist.length;
-      loadAndPlayTrack(prevIndex);
-    }
-
+    function playNextTrack() { loadAndPlayTrack((currentTrackIndex + 1) % tracklist.length); }
+    function playPrevTrack() { loadAndPlayTrack((currentTrackIndex - 1 + tracklist.length) % tracklist.length); }
     audio.addEventListener('ended', playNextTrack);
 
     audio.addEventListener('timeupdate', () => {
-      
+      if (audio.duration) {
+        progressFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        totalDurationEl.textContent = formatTime(audio.duration);
+      }
+    });
+
+    function seekAudio(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+    }
+
+    function formatTime(s) {
+      if (isNaN(s)) return '0:00';
+      return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+    }
+
+    function navigateToPage(num) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.getElementById(`page${num}`).classList.add('active');
+      if (num === 2) triggerConfetti();
+    }
+
+    let wishBlown = false;
+    function blowCandleWish() {
+      if (wishBlown) return;
+      wishBlown = true;
+      document.getElementById('flameEmoji').textContent = '🕯️💨';
+      document.getElementById('candleText').textContent = '✨ Wish sent & photo unlocked! ✨';
+      document.getElementById('candleText').style.color = '#86efac';
+      document.getElementById('mysteryPhoto').classList.add('revealed');
+      document.getElementById('scrambleText').classList.add('hidden');
+      document.getElementById('fortuneCard').style.display = 'block';
+      if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 50, origin: { y: 0.65 } });
+    }
+  </script>
+</body>
+</html>
