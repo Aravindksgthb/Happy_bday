@@ -1,1 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birthday VIP Edition 👑</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --spotify-green: #1db954;
+      --accent-pink: #ff4b72;
+      --gold: #fbbf24;
+      --cyan: #38bdf8;
+      --bg-dark: #090d16;
+      --card-bg: rgba(22, 27, 38, 0.85);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #2e1065 0%, var(--bg-dark) 100%);
+      color: #fff;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container { max-width: 380px; width: 100%; position: relative; }
+    .page-view { display: none; width: 100%; animation: slideIn 0.35s ease; }
+    .page-view.active { display: flex; flex-direction: column; gap: 12px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* SPOTIFY PLAYER */
+    .spotify-card {
+      background: linear-gradient(180deg, rgba(35, 30, 50, 0.85) 0%, var(--card-bg) 100%);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+    }
+    .top-badge {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; font-size: 0.75rem; color: #cbd5e1;
+    }
+    .verified-pill {
+      background: rgba(29, 185, 84, 0.15); color: var(--spotify-green);
+      border: 1px solid rgba(29, 185, 84, 0.3); padding: 3px 10px;
+      border-radius: 20px; font-weight: 700;
+    }
+
+    .vinyl-wrapper {
+      width: 175px;
+      height: 175px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a1a1a 0%, #000 35%, #222 37%, #0d0d0d 60%, #222 62%, #050505 100%);
+      padding: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8), inset 0 0 0 2px rgba(255,255,255,0.08), 0 0 20px rgba(255, 75, 114, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .album-art {
+      width: 115px;
+      height: 115px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #18181b;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+    .vinyl-spindle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #090d16;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      z-index: 5;
+    }
+    .spinning { animation: spin 6s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .track-title { font-size: 1.15rem; font-weight: 800; color: #fff; }
+    .artist-name { color: #94a3b8; font-size: 0.78rem; margin-top: 1px; }
+    
+    .heart-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b; }
+    .heart-btn.liked { color: var(--spotify-green); transform: scale(1.15); }
+    
+    .equalizer { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+    .eq-bar { width: 3px; height: 3px; background: var(--spotify-green); border-radius: 2px; }
+    .equalizer.playing .eq-bar:nth-child(1) { animation: bounce 0.6s infinite alternate ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(2) { animation: bounce 0.8s infinite alternate 0.2s ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(3) { animation: bounce 0.5s infinite alternate 0.4s ease-in-out; }
+    .equalizer.playing .eq-bar:nth-child(4) { animation: bounce 0.7s infinite alternate 0.1s ease-in-out; }
+    @keyframes bounce { 0% { height: 3px; } 100% { height: 16px; } }
+
+    .progress-area { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
+    .progress-bar-bg { background: rgba(255,255,255,0.12); height: 5px; border-radius: 3px; cursor: pointer; }
+    .progress-fill { background: var(--spotify-green); height: 100%; width: 0%; border-radius: 3px; }
+    .time-indicators { display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; }
+
+    .player-controls { display: flex; justify-content: space-evenly; align-items: center; margin: 2px 0 8px; }
+    .control-icon { color: #94a3b8; font-size: 1.15rem; background: none; border: none; cursor: pointer; padding: 6px; }
+    .play-btn {
+      background: var(--spotify-green); border: none; width: 46px; height: 46px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; cursor: pointer; color: black; box-shadow: 0 4px 14px rgba(29, 185, 84, 0.45);
+    }
+
+    .playlist {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 8px;
+    }
+    .track-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
+      margin-bottom: 5px; font-size: 0.82rem; cursor: pointer; border-left: 3px solid transparent;
+    }
+    .track-item.playing { background: rgba(29, 185, 84, 0.15); border-left: 3px solid var(--spotify-green); }
+    .track-item.playing .track-name, .track-item.playing .track-status { color: var(--spotify-green); font-weight: 700; }
+    .track-left { display: flex; align-items: center; gap: 8px; }
+    .track-num { color: #64748b; font-size: 0.8rem; }
+    .track-status { font-size: 0.8rem; color: #64748b; }
+
+    .action-card { background: rgba(22, 27, 38, 0.85); border-radius: 18px; padding: 10px; text-align: center; }
+    .open-btn {
+      background: linear-gradient(45deg, var(--accent-pink), #ff758c); color: white; border: none;
+      padding: 12px 20px; font-size: 0.92rem; font-weight: 700; border-radius: 9999px;
+      cursor: pointer; width: 100%; box-shadow: 0 4px 16px rgba(255, 75, 114, 0.4);
+    }
+
+    /* MESSAGE PAGE */
+    .letter-wrapper {
+      background: linear-gradient(160deg, rgba(46, 16, 37, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border-radius: 22px; padding: 20px 16px; border: 1px solid rgba(255, 75, 114, 0.3); text-align: center;
+    }
+    .letter-title {
+      font-size: 1.4rem; font-weight: 800;
+      background: linear-gradient(90deg, #fff, #ffccd5, var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .mystery-photo-wrap {
+      width: 140px; height: 140px; margin: 0 auto 10px; position: relative;
+      border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4);
+    }
+    .mystery-photo {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(14px) grayscale(0.8); transform: scale(1.15);
+      transition: filter 1.2s ease, transform 1.2s ease;
+    }
+    .mystery-photo.revealed { filter: blur(0px) grayscale(0); transform: scale(1); }
+    .scramble-overlay-text {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: #fef08a; background: rgba(0,0,0,0.35);
+    }
+    .scramble-overlay-text.hidden { opacity: 0; pointer-events: none; }
+    
+    .content-box {
+      background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px;
+      text-align: left; font-size: 0.88rem; line-height: 1.6; color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s ease;
+      user-select: none;
+    }
+
+    .content-box.voucher-active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px dashed var(--gold);
+      text-align: center;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+      cursor: pointer;
+    }
+
+    .content-box.voucher-upgraded {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px dashed var(--cyan) !important;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    .voucher-tag { font-size: 0.72rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+    .voucher-title { font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
+    .voucher-desc {
+      font-size: 0.85rem; line-height: 1.6; color: #e2e8f0; text-align: left;
+      background: rgba(0, 0, 0, 0.35); padding: 10px 12px; border-radius: 10px;
+    }
+    .voucher-fineprint { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; font-style: italic; }
+
+    .candle-section {
+      margin-top: 12px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 10px; border-radius: 16px; cursor: pointer;
+    }
+    .candle-flame { font-size: 1.9rem; filter: drop-shadow(0 0 10px #fbbf24); transition: transform 0.3s; }
+    .candle-flame.blowing { transform: scale(1.3) translateX(10px); opacity: 0.4; }
+    .candle-instruction { font-size: 0.8rem; color: #fef08a; font-weight: 700; margin-top: 3px; }
+
+    .back-btn {
+      background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 10px;
+      border-radius: 9999px; cursor: pointer; font-size: 0.85rem; width: 100%; margin-top: 12px; border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="page1" class="page-view active">
+      <div class="spotify-card">
+        <div class="top-badge">
+          <div class="verified-pill">✔ VERIFIED VIP</div>
+          <span>BIRTHDAY SOUNDTRACK</span>
+        </div>
+
+        <div class="vinyl-wrapper" id="vinylWrapper">
+          <img id="albumArt" src="photo.jpg" alt="Cover" class="album-art" />
+          <div class="vinyl-spindle"></div>
+        </div>
+
+        <div class="track-header">
+          <div>
+            <div class="track-title" id="trackTitle">Amsham ✨</div>
+            <div class="artist-name" id="artistName">Track 01 • Birthday Edition</div>
+          </div>
+          <button class="heart-btn" id="heartBtn" onclick="toggleHeart()">♥</button>
+          <div class="equalizer" id="equalizer">
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+          </div>
+        </div>
+        <audio id="audioTrack" preload="auto"></audio>
+        <div class="progress-area" onclick="seekAudio(event)">
+          <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="time-indicators"><span id="currentTime">0:00</span><span id="totalDuration">0:00</span></div>
+        </div>
+        <div class="player-controls">
+          <button class="control-icon" onclick="playPrevTrack()">⏮</button>
+          <button class="play-btn" id="playPauseBtn" onclick="toggleAudio()">▶</button>
+          <button class="control-icon" onclick="playNextTrack()">⏭</button>
+          <button class="control-icon" onclick="triggerConfetti()">🎉</button>
+        </div>
+        
+        <div class="playlist">
+          <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0)">
+            <div class="track-left"><span class="track-num">1</span><span class="track-name">Amsham</span></div>
+            <span class="track-status">▶</span>
+          </div>
+          <div class="track-item" id="track-1" onclick="loadAndPlayTrack(1)">
+            <div class="track-left"><span class="track-num">2</span><span class="track-name">Arikil</span></div>
+            <span class="track-status">▶</span>
+          </div>
+          <div class="track-item" id="track-2" onclick="loadAndPlayTrack(2)">
+            <div class="track-left"><span class="track-num">3</span><span class="track-name">Blue</span></div>
+            <span class="track-status">▶</span>
+          </div>
+        </div>
+      </div>
+      <div class="action-card">
+        <button class="open-btn" onclick="navigateToPage(2)">Open Birthday Card ✉️</button>
+      </div>
+    </div>
+
+    <div id="page2" class="page-view">
+      <div class="letter-wrapper">
+        <h1 class="letter-title">Happy Birthday Nandhu !!🍾</h1>
+        
+        <div class="mystery-photo-wrap">
+          <img id="mysteryPhoto" src="wish_photo.jpg" alt="Wish" class="mystery-photo" onerror="this.src='photo.jpg'" />
+          <div id="scrambleText" class="scramble-overlay-text">🔒 Locked Wish</div>
+        </div>
+
+        <div id="mainContentBox" class="content-box">
+          Another year hotter, smarter, and completely unmatched. 👑<br><br>
+          May your year be filled with spontaneous road trips, zero awkward moments, great Spotify mixes on repeat, and food that never disappoints.<br><br>
+          Keep serving main-character energy, laughing at the most unhinged things, and staying effortlessly iconic. The world simply couldn't handle you on low battery! ✨🥂
+        </div>
+
+        <div class="candle-section" id="candleBox" onclick="blowCandleWish()">
+          <div class="candle-flame" id="flameEmoji">🕯️🔥</div>
+          <div class="candle-instruction" id="candleText">Tap candle to blow flame & claim reward!</div>
+        </div>
+
+        <button class="back-btn" onclick="navigateToPage(1)">← Back to Music Player</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tracklist = [
+      { title: "Amsham ✨", artist: "Track 01 • Birthday Edition", src: "Amsham.mp3" },
+      { title: "Arikil 🔥", artist: "Track 02 • Birthday Edition", src: "Arikil.mp3" },
+      { title: "Blue 👑", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" }
+    ];
+    let currentTrackIndex = 0;
+    const audio = document.getElementById('audioTrack');
+    const playBtn = document.getElementById('playPauseBtn');
+    const progressFill = document.getElementById('progressFill');
+    const currentTimeEl = document.getElementById('currentTime');
+    const totalDurationEl = document.getElementById('totalDuration');
+    const trackTitleEl = document.getElementById('trackTitle');
+    const artistNameEl = document.getElementById('artistName');
+    const equalizer = document.getElementById('equalizer');
+    const vinylWrapper = document.getElementById('vinylWrapper');
+
+    function initPlayer() {
+      audio.src = tracklist[0].src;
+      trackTitleEl.textContent = tracklist[0].title;
+      artistNameEl.textContent = tracklist[0].artist;
+    }
+    initPlayer();
+
+    function loadAndPlayTrack(index) {
+      currentTrackIndex = index;
+      const track = tracklist[index];
+      trackTitleEl.textContent = track.title;
+      artistNameEl.textContent = track.artist;
+      document.querySelectorAll('.track-item').forEach((item, idx) => {
+        item.classList.toggle('playing', idx === index);
+        item.querySelector('.track-status').textContent = idx === index ? '🔊' : '▶';
+      });
+      audio.src = track.src;
+      audio.load();
+      audio.play().then(() => {
+        playBtn.textContent = '⏸';
+        equalizer.classList.add('playing');
+        vinylWrapper.classList.add('spinning');
+      }).catch(() => { playBtn.textContent = '▶'; });
+      triggerConfetti();
+    }
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play().then(() => {
+          playBtn.textContent = '⏸';
+          equalizer.classList.add('playing');
+          vinylWrapper.classList.add('spinning');
+        });
+      } else {
+        audio.pause();
+        playBtn.textContent = '▶';
+        equalizer.classList.remove('playing');
+        vinylWrapper.classList.remove('spinning');
+      }
+    }
+
+    function toggleHeart() {
+      document.getElementById('heartBtn').classList.toggle('liked');
+      triggerConfetti();
+    }
+
+    function playNextTrack() { loadAndPlayTrack((currentTrackIndex + 1) % tracklist.length); }
+    function playPrevTrack() { loadAndPlayTrack((currentTrackIndex - 1 + tracklist.length) % tracklist.length); }
+    audio.addEventListener('ended', playNextTrack);
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        progressFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        totalDurationEl.textContent = formatTime(audio.duration);
+      }
+    });
+
+    function seekAudio(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+    }
+
+    function formatTime(s) {
+      if (isNaN(s)) return '0:00';
+      return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+    }
+
+    function navigateToPage(num) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.getElementById(`page${num}`).classList.add('active');
+      if (num === 2) triggerConfetti();
+    }
+
+    let wishBlown = false;
+    let voucherUpgraded = false;
+    let lastVoucherTap = 0;
+
+    function renderVoucher(isUpgraded) {
+      const box = document.getElementById('mainContentBox');
+      box.classList.add('voucher-active');
+      
+      if (isUpgraded) {
+        box.classList.add('voucher-upgraded');
+        box.innerHTML = `
+          <div class="voucher-tag" style="color: var(--cyan);">👑 VIP PLATINUM UPGRADE UNLOCKED</div>
+          <div class="voucher-title">1x Unlimited Shawarma + Loaded Fries 🍟🌯</div>
+          <div class="voucher-desc">
+            <strong>Valid at:</strong> Literally any spot of your choice<br>
+            <strong>Bonus:</strong> Free Extra Mayo & Loaded Fries Included<br>
+            <strong>Bill paid by:</strong> Yours truly<br>
+            <strong>Expires:</strong> Never ♾️
+          </div>
+          <div class="voucher-fineprint" style="color: var(--cyan);">*Secret Platinum Tier Active • Screenshot to redeem*</div>
+        `;
+      } else {
+        box.innerHTML = `
+          <div class="voucher-tag">🎟️ OFFICIAL VIP VOUCHER</div>
+          <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
+          <div class="voucher-desc">
+            <strong>Valid at:</strong> Literally any spot of your choice<br>
+            <strong>Bill paid by:</strong> Yours truly<br>
+            <strong>Expires:</strong> Never ♾️
+          </div>
+          <div class="voucher-fineprint">*Non-transferable • Screenshot to redeem anytime*</div>
+        `;
+      }
+    }
+
+    function blowCandleWish() {
+      if (wishBlown) return;
+      wishBlown = true;
+
+      const flame = document.getElementById('flameEmoji');
+      flame.classList.add('blowing');
+
+      setTimeout(() => {
+        flame.classList.remove('blowing');
+        flame.textContent = '🕯️💨';
+        document.getElementById('candleText').textContent = '✨ Wish granted & reward unlocked! ✨';
+        document.getElementById('candleText').style.color = '#86efac';
+        document.getElementById('mysteryPhoto').classList.add('revealed');
+        document.getElementById('scrambleText').classList.add('hidden');
+        
+        renderVoucher(false);
+
+        if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      }, 400);
+    }
+
+    // Secret double-tap listener on the voucher
+    document.getElementById('mainContentBox').addEventListener('pointerdown', () => {
+      if (!wishBlown || voucherUpgraded) return;
+      const now = Date.now();
+      if (now - lastVoucherTap < 350) {
+        voucherUpgraded = true;
+        renderVoucher(true);
+        if (typeof confetti === 'function') confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
+      }
+      lastVoucherTap = now;
+    });
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 50, origin: { y: 0.65 } });
+    }
+  </script>
+</body>
+</html>
