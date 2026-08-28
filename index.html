@@ -1,30 +1,31 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Birthday Girl 👑</title>
+  <title>Birthday VIP Edition 👑</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --accent-color: #1db954; /* Default Spotify Green */
-      --accent-glow: rgba(29, 185, 84, 0.45);
+      --accent-color: #a855f7; /* Default purple */
+      --accent-glow: rgba(168, 85, 247, 0.45);
       --accent-pink: #ff4b72;
       --gold: #fbbf24;
       --cyan: #38bdf8;
       --bg-dark: #090d16;
       --card-bg: rgba(22, 27, 38, 0.85);
+      --aura-gradient: radial-gradient(circle at 50% 0%, #3b0764 0%, var(--bg-dark) 100%);
     }
-    /* Velvet Gold Theme Toggle */
     body.theme-gold {
-      --accent-color: #fbbf24;
-      --accent-glow: rgba(251, 191, 36, 0.45);
+      --accent-color: #fbbf24 !important;
+      --accent-glow: rgba(251, 191, 36, 0.45) !important;
+      --aura-gradient: radial-gradient(circle at 50% 0%, #451a03 0%, var(--bg-dark) 100%) !important;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #2e1065 0%, var(--bg-dark) 100%);
+      background: var(--aura-gradient);
       color: #fff;
       padding: 12px;
       display: flex;
@@ -32,7 +33,7 @@
       align-items: center;
       min-height: 100vh;
       overflow-x: hidden;
-      transition: background 0.5s ease;
+      transition: background 0.8s ease;
     }
     .container { max-width: 380px; width: 100%; position: relative; }
     .page-view { display: none; width: 100%; animation: slideIn 0.35s ease; }
@@ -56,7 +57,7 @@
       background: rgba(255, 255, 255, 0.08); color: var(--accent-color);
       border: 1px solid var(--accent-color); padding: 3px 10px;
       border-radius: 20px; font-weight: 700; cursor: pointer;
-      user-select: none; transition: all 0.3s ease;
+      user-select: none; transition: all 0.4s ease;
     }
 
     .vinyl-wrapper {
@@ -71,7 +72,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: box-shadow 0.4s ease;
+      transition: box-shadow 0.6s ease;
     }
     .album-art {
       width: 115px;
@@ -101,7 +102,7 @@
     .heart-btn.liked { color: var(--accent-color); transform: scale(1.15); }
     
     .equalizer { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
-    .eq-bar { width: 3px; height: 3px; background: var(--accent-color); border-radius: 2px; transition: background 0.3s; }
+    .eq-bar { width: 3px; height: 3px; background: var(--accent-color); border-radius: 2px; transition: background 0.4s; }
     .equalizer.playing .eq-bar:nth-child(1) { animation: bounce 0.6s infinite alternate ease-in-out; }
     .equalizer.playing .eq-bar:nth-child(2) { animation: bounce 0.8s infinite alternate 0.2s ease-in-out; }
     .equalizer.playing .eq-bar:nth-child(3) { animation: bounce 0.5s infinite alternate 0.4s ease-in-out; }
@@ -110,7 +111,7 @@
 
     .progress-area { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
     .progress-bar-bg { background: rgba(255,255,255,0.12); height: 5px; border-radius: 3px; cursor: pointer; }
-    .progress-fill { background: var(--accent-color); height: 100%; width: 0%; border-radius: 3px; transition: background 0.3s; }
+    .progress-fill { background: var(--accent-color); height: 100%; width: 0%; border-radius: 3px; transition: background 0.4s; }
     .time-indicators { display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; }
 
     .player-controls { display: flex; justify-content: space-evenly; align-items: center; margin: 2px 0 8px; }
@@ -119,7 +120,7 @@
       background: var(--accent-color); border: none; width: 46px; height: 46px;
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       font-size: 1.25rem; cursor: pointer; color: black; box-shadow: 0 4px 14px var(--accent-glow);
-      transition: background 0.3s, box-shadow 0.3s;
+      transition: background 0.4s, box-shadow 0.4s;
     }
 
     .playlist {
@@ -130,12 +131,24 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
       margin-bottom: 5px; font-size: 0.82rem; cursor: pointer; border-left: 3px solid transparent;
+      position: relative; overflow: hidden;
     }
     .track-item.playing { background: rgba(255,255,255,0.08); border-left: 3px solid var(--accent-color); }
     .track-item.playing .track-name, .track-item.playing .track-status { color: var(--accent-color); font-weight: 700; }
     .track-left { display: flex; align-items: center; gap: 8px; }
     .track-num { color: #64748b; font-size: 0.8rem; }
     .track-status { font-size: 0.8rem; color: #64748b; }
+
+    /* Single Gentle Floating Heart */
+    .song-floating-heart {
+      position: fixed; pointer-events: none; font-size: 1.6rem;
+      animation: gentleFloat 1.2s ease-out forwards; z-index: 9999;
+    }
+    @keyframes gentleFloat {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+      50% { transform: translate(-50%, -40px) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -80px) scale(0.9); }
+    }
 
     .action-card { background: rgba(22, 27, 38, 0.85); border-radius: 18px; padding: 10px; text-align: center; }
     .open-btn {
@@ -174,9 +187,7 @@
       -webkit-backface-visibility: hidden; backface-visibility: hidden;
       border-radius: 16px; overflow: hidden; border: 2px solid rgba(251, 191, 36, 0.4);
     }
-    .photo-front {
-      background: #000;
-    }
+    .photo-front { background: #000; }
     .photo-back {
       background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
       transform: rotateY(180deg);
@@ -281,15 +292,15 @@
         </div>
         
         <div class="playlist">
-          <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0)">
+          <div class="track-item playing" id="track-0" onclick="loadAndPlayTrack(0, event)">
             <div class="track-left"><span class="track-num">1</span><span class="track-name">Amsham</span></div>
             <span class="track-status">▶</span>
           </div>
-          <div class="track-item" id="track-1" onclick="loadAndPlayTrack(1)">
+          <div class="track-item" id="track-1" onclick="loadAndPlayTrack(1, event)">
             <div class="track-left"><span class="track-num">2</span><span class="track-name">Arikil</span></div>
             <span class="track-status">▶</span>
           </div>
-          <div class="track-item" id="track-2" onclick="loadAndPlayTrack(2)">
+          <div class="track-item" id="track-2" onclick="loadAndPlayTrack(2, event)">
             <div class="track-left"><span class="track-num">3</span><span class="track-name">Blue</span></div>
             <span class="track-status">▶</span>
           </div>
@@ -318,7 +329,7 @@
 
         <div id="mainContentBox" class="content-box">
           Another year hotter, smarter, and completely unmatched. 👑<br><br>
-          May your year be filled with spontaneous road trips, zero awkward moments, great Songs on repeat, and food that never disappoints.<br><br>
+          May your year be filled with spontaneous road trips, zero awkward moments, great Spotify mixes on repeat, and food that never disappoints.<br><br>
           Keep serving main-character energy, laughing at the most unhinged things, and staying effortlessly iconic. The world simply couldn't handle you on low battery! ✨🥂
         </div>
 
@@ -334,9 +345,33 @@
 
   <script>
     const tracklist = [
-      { title: "Amsham 💜", artist: "Track 01 • Birthday Edition", src: "Amsham.mp3" },
-      { title: "Arikil 🧡", artist: "Track 02 • Birthday Edition", src: "Arikil.mp3" },
-      { title: "Blue 🩵", artist: "Track 03 • Birthday Edition", src: "Blue.mp3" }
+      { 
+        title: "Amsham 💜", 
+        artist: "Track 01 • Birthday Edition", 
+        src: "Amsham.mp3",
+        color: "#a855f7",
+        glow: "rgba(168, 85, 247, 0.45)",
+        gradient: "radial-gradient(circle at 50% 0%, #3b0764 0%, var(--bg-dark) 100%)",
+        emoji: "💜"
+      },
+      { 
+        title: "Arikil 🧡", 
+        artist: "Track 02 • Birthday Edition", 
+        src: "Arikil.mp3",
+        color: "#f97316",
+        glow: "rgba(249, 115, 22, 0.45)",
+        gradient: "radial-gradient(circle at 50% 0%, #431407 0%, var(--bg-dark) 100%)",
+        emoji: "🧡"
+      },
+      { 
+        title: "Blue 🩵", 
+        artist: "Track 03 • Birthday Edition", 
+        src: "Blue.mp3",
+        color: "#38bdf8",
+        glow: "rgba(56, 189, 248, 0.45)",
+        gradient: "radial-gradient(circle at 50% 0%, #0c4a6e 0%, var(--bg-dark) 100%)",
+        emoji: "🩵"
+      }
     ];
     let currentTrackIndex = 0;
     const audio = document.getElementById('audioTrack');
@@ -349,18 +384,40 @@
     const equalizer = document.getElementById('equalizer');
     const vinylWrapper = document.getElementById('vinylWrapper');
 
+    function applyTrackTheme(track) {
+      if (document.body.classList.contains('theme-gold')) return;
+      document.documentElement.style.setProperty('--accent-color', track.color);
+      document.documentElement.style.setProperty('--accent-glow', track.glow);
+      document.documentElement.style.setProperty('--aura-gradient', track.gradient);
+    }
+
     function initPlayer() {
       audio.src = tracklist[0].src;
       trackTitleEl.textContent = tracklist[0].title;
       artistNameEl.textContent = tracklist[0].artist;
+      applyTrackTheme(tracklist[0]);
     }
     initPlayer();
 
-    function loadAndPlayTrack(index) {
+    function loadAndPlayTrack(index, evt) {
       currentTrackIndex = index;
       const track = tracklist[index];
       trackTitleEl.textContent = track.title;
       artistNameEl.textContent = track.artist;
+      
+      applyTrackTheme(track);
+
+      // Trigger a gentle, single floating heart
+      if (evt) {
+        const heart = document.createElement('div');
+        heart.className = 'song-floating-heart';
+        heart.textContent = track.emoji;
+        heart.style.left = `${evt.clientX || (window.innerWidth / 2)}px`;
+        heart.style.top = `${evt.clientY || (window.innerHeight / 2)}px`;
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1200);
+      }
+
       document.querySelectorAll('.track-item').forEach((item, idx) => {
         item.classList.toggle('playing', idx === index);
         item.querySelector('.track-status').textContent = idx === index ? '🔊' : '▶';
@@ -372,7 +429,6 @@
         equalizer.classList.add('playing');
         vinylWrapper.classList.add('spinning');
       }).catch(() => { playBtn.textContent = '▶'; });
-      triggerConfetti();
     }
 
     function toggleAudio() {
@@ -392,12 +448,11 @@
 
     function toggleHeart() {
       document.getElementById('heartBtn').classList.toggle('liked');
-      triggerConfetti();
     }
 
     function playNextTrack() { loadAndPlayTrack((currentTrackIndex + 1) % tracklist.length); }
     function playPrevTrack() { loadAndPlayTrack((currentTrackIndex - 1 + tracklist.length) % tracklist.length); }
-    audio.addEventListener('ended', playNextTrack);
+        audio.addEventListener('ended', playNextTrack);
 
     audio.addEventListener('timeupdate', () => {
       if (audio.duration) {
@@ -420,7 +475,6 @@
     function navigateToPage(num) {
       document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
       document.getElementById(`page${num}`).classList.add('active');
-      if (num === 2) triggerConfetti();
     }
 
     let wishBlown = false;
@@ -434,7 +488,7 @@
       if (isUpgraded) {
         box.classList.add('voucher-upgraded');
         box.innerHTML = `
-          <div class="voucher-tag" style="color: var(--cyan);">👑 PLATINUM OFFER UNLOCKED</div>
+          <div class="voucher-tag" style="color: var(--cyan);">👑 VIP PLATINUM UPGRADE UNLOCKED</div>
           <div class="voucher-title">1x Unlimited Shawarma + Loaded Fries 🍟🌯</div>
           <div class="voucher-desc">
             <strong>Valid at:</strong> Literally any spot of your choice<br>
@@ -446,7 +500,7 @@
         `;
       } else {
         box.innerHTML = `
-          <div class="voucher-tag">🎟️ OFFICIAL BDAY VOUCHER</div>
+          <div class="voucher-tag">🎟️ OFFICIAL VIP VOUCHER</div>
           <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
           <div class="voucher-desc">
             <strong>Valid at:</strong> Literally any spot of your choice<br>
@@ -475,7 +529,7 @@
         
         renderVoucher(false);
 
-        if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        if (typeof confetti === 'function') confetti({ particleCount: 120, spread: 75, origin: { y: 0.6 } });
       }, 400);
     }
 
@@ -485,7 +539,9 @@
       const now = Date.now();
       if (now - lastVipTap < 350) {
         document.body.classList.toggle('theme-gold');
-        if (typeof confetti === 'function') confetti({ particleCount: 60, spread: 60, colors: ['#fbbf24', '#f59e0b', '#ffffff'] });
+        if (!document.body.classList.contains('theme-gold')) {
+          applyTrackTheme(tracklist[currentTrackIndex]);
+        }
       }
       lastVipTap = now;
     });
@@ -498,7 +554,6 @@
       const now = Date.now();
       if (now - lastPhotoTap < 350) {
         flipCard.classList.toggle('flipped');
-        if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 40, origin: { y: 0.4 } });
       }
       lastPhotoTap = now;
     });
@@ -510,13 +565,13 @@
       if (now - lastVoucherTap < 350) {
         voucherUpgraded = true;
         renderVoucher(true);
-        if (typeof confetti === 'function') confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
+        if (typeof confetti === 'function') confetti({ particleCount: 180, spread: 90, origin: { y: 0.5 } });
       }
       lastVoucherTap = now;
     });
 
     function triggerConfetti() {
-      if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 50, origin: { y: 0.65 } });
+      if (typeof confetti === 'function') confetti({ particleCount: 35, spread: 45, origin: { y: 0.65 } });
     }
   </script>
 </body>
