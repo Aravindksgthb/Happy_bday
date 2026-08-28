@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Birthday VIP Edition 👑</title>
+  <title>Birthday Girl 👑</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -329,7 +329,7 @@
 
         <div id="mainContentBox" class="content-box">
           Another year hotter, smarter, and completely unmatched. 👑<br><br>
-          May your year be filled with spontaneous road trips, zero awkward moments, great Spotify mixes on repeat, and food that never disappoints.<br><br>
+          May your year be filled with spontaneous road trips, zero awkward moments, great Songs on repeat, and food that never disappoints.<br><br>
           Keep serving main-character energy, laughing at the most unhinged things, and staying effortlessly iconic. The world simply couldn't handle you on low battery! ✨🥂
         </div>
 
@@ -343,7 +343,7 @@
     </div>
   </div>
 
-  <script>
+    <script>
     const tracklist = [
       { 
         title: "Amsham 💜", 
@@ -374,6 +374,8 @@
       }
     ];
     let currentTrackIndex = 0;
+    let pulseTimer = null;
+
     const audio = document.getElementById('audioTrack');
     const playBtn = document.getElementById('playPauseBtn');
     const progressFill = document.getElementById('progressFill');
@@ -391,6 +393,31 @@
       document.documentElement.style.setProperty('--aura-gradient', track.gradient);
     }
 
+    function triggerSpindlePulse(emoji) {
+      let spindle = document.querySelector('.vinyl-spindle');
+      if (!spindle) return;
+      
+      spindle.style.display = 'flex';
+      spindle.style.alignItems = 'center';
+      spindle.style.justifyContent = 'center';
+      spindle.style.fontSize = '1.1rem';
+      spindle.style.width = '32px';
+      spindle.style.height = '32px';
+      spindle.style.transition = 'all 0.6s ease';
+      spindle.style.transform = 'scale(1.25)';
+      spindle.style.boxShadow = '0 0 15px rgba(255,255,255,0.4)';
+      spindle.textContent = emoji;
+
+      clearTimeout(pulseTimer);
+      pulseTimer = setTimeout(() => {
+        spindle.style.transform = 'scale(1)';
+        spindle.style.boxShadow = 'none';
+        spindle.style.width = '16px';
+        spindle.style.height = '16px';
+        spindle.textContent = '';
+      }, 3500);
+    }
+
     function initPlayer() {
       audio.src = tracklist[0].src;
       trackTitleEl.textContent = tracklist[0].title;
@@ -399,24 +426,14 @@
     }
     initPlayer();
 
-    function loadAndPlayTrack(index, evt) {
+    function loadAndPlayTrack(index) {
       currentTrackIndex = index;
       const track = tracklist[index];
       trackTitleEl.textContent = track.title;
       artistNameEl.textContent = track.artist;
       
       applyTrackTheme(track);
-
-      // Trigger a gentle, single floating heart
-      if (evt) {
-        const heart = document.createElement('div');
-        heart.className = 'song-floating-heart';
-        heart.textContent = track.emoji;
-        heart.style.left = `${evt.clientX || (window.innerWidth / 2)}px`;
-        heart.style.top = `${evt.clientY || (window.innerHeight / 2)}px`;
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 1200);
-      }
+      triggerSpindlePulse(track.emoji);
 
       document.querySelectorAll('.track-item').forEach((item, idx) => {
         item.classList.toggle('playing', idx === index);
@@ -452,7 +469,7 @@
 
     function playNextTrack() { loadAndPlayTrack((currentTrackIndex + 1) % tracklist.length); }
     function playPrevTrack() { loadAndPlayTrack((currentTrackIndex - 1 + tracklist.length) % tracklist.length); }
-        audio.addEventListener('ended', playNextTrack);
+    audio.addEventListener('ended', playNextTrack);
 
     audio.addEventListener('timeupdate', () => {
       if (audio.duration) {
@@ -488,7 +505,7 @@
       if (isUpgraded) {
         box.classList.add('voucher-upgraded');
         box.innerHTML = `
-          <div class="voucher-tag" style="color: var(--cyan);">👑 VIP PLATINUM UPGRADE UNLOCKED</div>
+          <div class="voucher-tag" style="color: var(--cyan);">👑 BDAY UPGRADE UNLOCKED</div>
           <div class="voucher-title">1x Unlimited Shawarma + Loaded Fries 🍟🌯</div>
           <div class="voucher-desc">
             <strong>Valid at:</strong> Literally any spot of your choice<br>
@@ -500,7 +517,7 @@
         `;
       } else {
         box.innerHTML = `
-          <div class="voucher-tag">🎟️ OFFICIAL VIP VOUCHER</div>
+          <div class="voucher-tag">🎟️ OFFICIAL B'DAY VOUCHER</div>
           <div class="voucher-title">1x Unlimited Shawarma Treat 🌯</div>
           <div class="voucher-desc">
             <strong>Valid at:</strong> Literally any spot of your choice<br>
@@ -573,6 +590,6 @@
     function triggerConfetti() {
       if (typeof confetti === 'function') confetti({ particleCount: 35, spread: 45, origin: { y: 0.65 } });
     }
-  </script>
+    </script>
 </body>
 </html>
